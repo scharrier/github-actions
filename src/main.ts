@@ -14,6 +14,7 @@ async function run(): Promise<void> {
     const doc: string = core.getInput('doc');
     const hub: string = core.getInput('hub');
     const branch: string = core.getInput('branch');
+    const overlay: string = core.getInput('overlay');
     const token: string = core.getInput('token');
     const command: string = core.getInput('command') || 'deploy';
     const expires: string | undefined = core.getInput('expires');
@@ -34,6 +35,10 @@ async function run(): Promise<void> {
 
     if (branch) {
       deployParams = deployParams.concat(['--branch', branch]);
+    }
+
+    if (overlay) {
+      deployParams = deployParams.concat(processOverlays(overlay));
     }
 
     await config.load();
@@ -106,6 +111,13 @@ function handleErrors(error: unknown): void {
   }
 
   core.setFailed(msg);
+}
+
+function processOverlays(overlay: string): string[] {
+  return overlay
+    .split(',')
+    .map((o) => ['--overlay', o])
+    .flat();
 }
 
 export default run;
